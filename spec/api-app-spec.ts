@@ -345,7 +345,7 @@ describe('app module', () => {
           expectedAdditionalData: undefined
         });
         assert(false);
-      } catch (e) {
+      } catch {
         // This is expected.
       }
     });
@@ -1422,7 +1422,7 @@ describe('app module', () => {
         }
       } else {
         // return error if not clean exit
-        return Promise.reject(new Error(errorData));
+        throw new Error(errorData);
       }
     };
     const verifyBasicGPUInfo = async (gpuInfo: any) => {
