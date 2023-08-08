@@ -359,7 +359,7 @@ step-setup-goma-for-build: &step-setup-goma-for-build
       echo 'export LOCAL_GOMA_DIR='`node -e "console.log(require('./src/utils/goma.js').dir)"` >> $BASH_ENV
       echo 'export GOMA_FALLBACK_ON_AUTH_FAILURE=true' >> $BASH_ENV
       # Goma has to be shut down once to generate the cache files
-      if [ ! -f "~/.goma_cache/deps-cache" ]; then
+      if [ ! -f ~/.goma_cache/deps-cache ]; then
         third_party/goma/goma_ctl.py ensure_stop
         third_party/goma/goma_ctl.py ensure_start
       fi
