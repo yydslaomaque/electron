@@ -341,6 +341,10 @@ step-setup-goma-for-build: &step-setup-goma-for-build
       mkdir third_party
       node -e "require('./src/utils/goma.js').downloadAndPrepare({ gomaOneForAll: true })"
       export GOMA_FALLBACK_ON_AUTH_FAILURE=true
+      echo 'export GOMA_CACHE_DIR="~/.goma_cache"' >> $BASH_ENV
+      echo 'export GOMA_DEPS_CACHE_FILE="deps-cache"' >> $BASH_ENV
+      echo 'export GOMA_COMPILER_INFO_CACHE_FILE="compiler-info-cache"' >> $BASH_ENV
+      echo 'export GOMA_LOCAL_OUTPUT_CACHE_DIR="~/.goma_output_cache"' >> $BASH_ENV
       third_party/goma/goma_ctl.py ensure_start
       if [ ! -z "$RAW_GOMA_AUTH" ] && [ "`third_party/goma/goma_auth.py info`" != "Login as Fermi Planck" ]; then
         echo "WARNING!!!!!! Goma authentication is incorrect; please update Goma auth token."
@@ -349,6 +353,11 @@ step-setup-goma-for-build: &step-setup-goma-for-build
       echo 'export GN_GOMA_FILE='`node -e "console.log(require('./src/utils/goma.js').gnFilePath)"` >> $BASH_ENV
       echo 'export LOCAL_GOMA_DIR='`node -e "console.log(require('./src/utils/goma.js').dir)"` >> $BASH_ENV
       echo 'export GOMA_FALLBACK_ON_AUTH_FAILURE=true' >> $BASH_ENV
+      # Goma has to be shut down once to generate the cache files
+      if [ ! -f "~/.goma_cache/deps-cache" ]; then
+        third_party/goma/goma_ctl.py ensure_stop
+        third_party/goma/goma_ctl.py ensure_start
+      fi
       cd ..
       touch "${TMPDIR:=/tmp}"/.goma-ready
     background: true
@@ -363,6 +372,20 @@ step-wait-for-goma: &step-wait-for-goma
       done
       echo "Goma ready"
     no_output_timeout: 5m
+
+step-restore-goma-cache: &step-restore-goma-cache
+  restore_cache:
+    keys:
+      - v1-dsanders11-goma-cache-{{ arch }}
+    name: Restoring Goma cache
+
+step-save-goma-cache: &step-save-goma-cache
+  save_cache:
+    paths:
+      - ~/.goma_cache/
+      - ~/.goma_output_cache/
+    key: v1-dsanders11-goma-cache-{{ arch }}
+    name: Persisting Goma cache
 
 step-restore-brew-cache: &step-restore-brew-cache
   restore_cache:
@@ -1297,6 +1320,7 @@ commands:
       - when:
           condition: << parameters.build >>
           steps:
+            - *step-restore-goma-cache
             - *step-setup-goma-for-build
       - when:
           condition: << parameters.checkout-and-assume-cache >>
@@ -1405,6 +1429,7 @@ commands:
                 artifact-key: << parameters.artifact-key >>
                 build-type: << parameters.build-type >>
                 build-nonproprietary-ffmpeg: << parameters.build-nonproprietary-ffmpeg >>
+            - *step-save-goma-cache
             - steps: << parameters.after-build-and-save >>
 
             # Save all data needed for a further tests run.
