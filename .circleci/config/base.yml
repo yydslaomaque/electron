@@ -383,14 +383,14 @@ step-restart-goma: &step-restart-goma
 step-restore-goma-cache: &step-restore-goma-cache
   restore_cache:
     keys:
-      - v3-dsanders11-goma-cache-{{ arch }}
+      - v4-dsanders11-goma-cache-{{ arch }}
     name: Restoring Goma cache
 
 step-save-goma-cache: &step-save-goma-cache
   save_cache:
     paths:
       - ~/.goma_cache/
-    key: v3-dsanders11-goma-cache-{{ arch }}
+    key: v4-dsanders11-goma-cache-{{ arch }}
     name: Persisting Goma cache
 
 step-restore-brew-cache: &step-restore-brew-cache
