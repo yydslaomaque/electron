@@ -377,8 +377,8 @@ step-restart-goma: &step-restart-goma
   run:
     name: Restart Goma
     command: |
-      third_party/goma/goma_ctl.py ensure_stop
-      third_party/goma/goma_ctl.py ensure_start
+      $LOCAL_GOMA_DIR/goma_ctl.py ensure_stop
+      $LOCAL_GOMA_DIR/goma_ctl.py ensure_start
 
 step-restore-goma-cache: &step-restore-goma-cache
   restore_cache:
