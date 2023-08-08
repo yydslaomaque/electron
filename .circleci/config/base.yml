@@ -381,7 +381,7 @@ step-wait-for-goma: &step-wait-for-goma
 step-restore-goma-cache: &step-restore-goma-cache
   restore_cache:
     keys:
-      - v1-dsanders11-goma-cache-{{ arch }}
+      - v2-dsanders11-goma-cache-{{ arch }}
     name: Restoring Goma cache
 
 step-save-goma-cache: &step-save-goma-cache
@@ -389,7 +389,7 @@ step-save-goma-cache: &step-save-goma-cache
     paths:
       - ~/.goma_cache/
       - ~/.goma_output_cache/
-    key: v1-dsanders11-goma-cache-{{ arch }}
+    key: v2-dsanders11-goma-cache-{{ arch }}
     name: Persisting Goma cache
 
 step-restore-brew-cache: &step-restore-brew-cache
