@@ -342,6 +342,10 @@ step-setup-goma-for-build: &step-setup-goma-for-build
       node -e "require('./src/utils/goma.js').downloadAndPrepare({ gomaOneForAll: true })"
       export GOMA_FALLBACK_ON_AUTH_FAILURE=true
       HOME=~/
+      export GOMA_CACHE_DIR=$HOME/.goma_cache
+      export GOMA_DEPS_CACHE_FILE="deps-cache"
+      export GOMA_COMPILER_INFO_CACHE_FILE="compiler-info-cache"
+      export GOMA_LOCAL_OUTPUT_CACHE_DIR=$HOME/.goma_output_cache
       echo "export GOMA_CACHE_DIR=$HOME/.goma_cache" >> $BASH_ENV
       echo 'export GOMA_DEPS_CACHE_FILE="deps-cache"' >> $BASH_ENV
       echo 'export GOMA_COMPILER_INFO_CACHE_FILE="compiler-info-cache"' >> $BASH_ENV
