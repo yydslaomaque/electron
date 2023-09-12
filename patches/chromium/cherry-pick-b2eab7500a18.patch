@@ -1,7 +1,7 @@
-From b2eab7500a18bd4d372f10149c6223fdfe48e3be Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: James Zern <jzern@chromium.org>
-Date: Fri, 08 Sep 2023 20:57:18 +0000
-Subject: [PATCH] Roll src/third_party/libwebp/src/ 6a319d4da..4619a48fc (1 commit)
+Date: Fri, 8 Sep 2023 20:57:18 +0000
+Subject: Roll src/third_party/libwebp/src/ 6a319d4da..4619a48fc (1 commit)
 
 https://chromium.googlesource.com/webm/libwebp.git/+log/6a319d4da395..4619a48fc329
 
@@ -18,13 +18,12 @@ Commit-Queue: James Zern <jzern@google.com>
 Reviewed-by: Urvang Joshi <urvang@chromium.org>
 Cr-Commit-Position: refs/branch-heads/5845@{#1779}
 Cr-Branched-From: 5a5dff63a4a4c63b9b18589819bebb2566c85443-refs/heads/main@{#1160321}
----
 
 diff --git a/DEPS b/DEPS
-index 7e73ace8..bfdbb96 100644
+index f2921b29c1bdc735f0be27951a9d3c99e16478f7..b3084dbc4cb522289edf698067995f1faff89610 100644
 --- a/DEPS
 +++ b/DEPS
-@@ -1591,7 +1591,7 @@
+@@ -1591,7 +1591,7 @@ deps = {
      Var('chromium_git') + '/webm/libwebm.git' + '@' + 'e4fbea0c9751ae8aa86629b197a28d8276a2b0da',
  
    'src/third_party/libwebp/src':
@@ -34,10 +33,10 @@ index 7e73ace8..bfdbb96 100644
    'src/third_party/libyuv':
      Var('chromium_git') + '/libyuv/libyuv.git' + '@' + '04821d1e7d60845525e8db55c7bcd41ef5be9406',
 diff --git a/third_party/libwebp/README.chromium b/third_party/libwebp/README.chromium
-index 6b51fa4a..0e24a45 100644
+index 6b51fa4a95340289f0549e53e52c85a2d17f5c37..0e24a4513b478c0e923eae3febafddc4916f1ce8 100644
 --- a/third_party/libwebp/README.chromium
 +++ b/third_party/libwebp/README.chromium
-@@ -2,7 +2,7 @@
+@@ -2,7 +2,7 @@ Name: WebP image encoder/decoder
  Short Name: libwebp
  URL: https://chromium.googlesource.com/webm/libwebp
  Version: 0
