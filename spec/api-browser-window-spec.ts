@@ -6388,7 +6388,7 @@ describe('BrowserWindow module', () => {
         y: display.size.height / 2
       });
 
-      console.log(`Centercolor2 ${centerColor} vs ${HexColors.PURPLE}`);
+      console.log(`Centercolor2 ${centerColor} vs ${HexColors.BLUE}`);
       expect(areColorsSimilar(centerColor, HexColors.BLUE)).to.be.true();
     });
   });
