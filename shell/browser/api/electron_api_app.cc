@@ -839,7 +839,11 @@ base::OnceClosure App::SelectClientCertificate(
 }
 
 void App::OnGpuInfoUpdate() {
-  Emit("gpu-info-update");
+  Emit("-gpu-info-update");
+}
+
+void App::OnGpuExtraInfoUpdate() {
+  Emit("-gpu-info-update");
 }
 
 void App::BrowserChildProcessLaunchedAndConnected(
