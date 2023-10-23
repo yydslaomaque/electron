@@ -816,6 +816,9 @@ WebContents::WebContents(v8::Isolate* isolate,
   // Get type
   options.Get("type", &type_);
 
+  // Get type
+  options.Get("transparent", &transparent_);
+
   bool b = false;
   if (options.Get(options::kOffscreen, &b) && b)
     type_ = Type::kOffScreen;
@@ -1617,8 +1620,8 @@ void WebContents::HandleNewRenderFrame(
 
     // If webPreferences has no color stored we need to explicitly set guest
     // webContents background color to transparent.
-    auto bg_color =
-        maybe_color.value_or(guest ? SK_ColorTRANSPARENT : SK_ColorWHITE);
+    auto bg_color = maybe_color.value_or(
+        guest && transparent_ ? SK_ColorTRANSPARENT : SK_ColorWHITE);
     web_contents()->SetPageBaseBackgroundColor(bg_color);
     SetBackgroundColor(rwhv, bg_color);
   }
