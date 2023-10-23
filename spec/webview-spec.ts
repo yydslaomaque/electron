@@ -1417,7 +1417,7 @@ describe('<webview> tag', function () {
       after(() => window.close());
 
       // Linux and arm64 platforms (WOA and macOS) do not return any capture sources
-      ifit(process.platform === 'win32' && process.arch === 'x64')('should not be transparent when not set', async () => {
+      ifit(process.platform === 'darwin' && process.arch === 'x64')('should not be transparent when not set', async () => {
         await loadWebView(window.webContents, {
           src: 'data:text/html,foo'
         });
@@ -1435,7 +1435,7 @@ describe('<webview> tag', function () {
       });
 
       // Linux and arm64 platforms (WOA and macOS) do not return any capture sources
-      ifit(process.platform === 'win32' && process.arch === 'x64')('should be transparent when set', async () => {
+      ifit(process.platform === 'darwin' && process.arch === 'x64')('should be transparent when set', async () => {
         await loadWebView(window.webContents, {
           src: 'data:text/html,foo',
           transparent: ''
