@@ -1394,7 +1394,7 @@ describe('<webview> tag', function () {
       });
     });
 
-    describe('transparent attribute', () => {
+    describe('opaque attribute', () => {
       const WINDOW_BACKGROUND_COLOR = '#55ccbb';
 
       let window: BrowserWindow;
@@ -1417,7 +1417,7 @@ describe('<webview> tag', function () {
       after(() => window.close());
 
       // Linux and arm64 platforms (WOA and macOS) do not return any capture sources
-      ifit(process.platform === 'darwin' && process.arch === 'x64')('should not be transparent when not set', async () => {
+      ifit(process.platform === 'darwin' && process.arch === 'x64')('should be transparent when not set', async () => {
         await loadWebView(window.webContents, {
           src: 'data:text/html,foo'
         });
@@ -1431,14 +1431,14 @@ describe('<webview> tag', function () {
           y: display.size.height / 2
         });
 
-        expect(areColorsSimilar(centerColor, HexColors.WHITE)).to.be.true();
+        expect(areColorsSimilar(centerColor, WINDOW_BACKGROUND_COLOR)).to.be.true();
       });
 
       // Linux and arm64 platforms (WOA and macOS) do not return any capture sources
-      ifit(process.platform === 'darwin' && process.arch === 'x64')('should be transparent when set', async () => {
+      ifit(process.platform === 'darwin' && process.arch === 'x64')('should be opaque when set', async () => {
         await loadWebView(window.webContents, {
           src: 'data:text/html,foo',
-          transparent: ''
+          opaque: ''
         });
 
         await setTimeout(1000);
@@ -1450,7 +1450,7 @@ describe('<webview> tag', function () {
           y: display.size.height / 2
         });
 
-        expect(areColorsSimilar(centerColor, WINDOW_BACKGROUND_COLOR)).to.be.true();
+        expect(areColorsSimilar(centerColor, HexColors.WHITE)).to.be.true();
       });
     });
   });
