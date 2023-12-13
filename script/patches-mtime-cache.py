@@ -38,6 +38,7 @@ def generate_cache(patches_config):
                 "mtime": os.path.getmtime(file_path),
             }
 
+    print("Returning the mtime_cache")
     return mtime_cache
 
 
@@ -139,6 +140,7 @@ def main():
         try:
             with open(args.cache_file, mode="w") as f:
                 mtime_cache = generate_cache(json.load(args.patches_config))
+                print("Generated mtime cache for patches")
                 json.dump(mtime_cache, f, indent=2)
         except Exception:
             print(
@@ -177,6 +179,7 @@ def main():
 
         set_mtimes(json.load(args.patches_config), args.mtime)
 
+    print("Done with patches-mtime-cache.py")
     return 0
 
 
