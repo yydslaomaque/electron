@@ -87,10 +87,10 @@ index 895ff3a5948add3513700ecc2f32fce4c2fbe4eb..3182a5e4aad2ba0be2b6769edb696b81
  
  MaybeLocal<Value> ModuleWrap::SyntheticModuleEvaluationStepsCallback(
 diff --git a/src/module_wrap.h b/src/module_wrap.h
-index 1fc801edced9c5e44613846b4dc555804c5bae97..23a0d7aee1dfa0ebe26e0507e31eacb0b4d137ed 100644
+index e17048357feca2419087621ed280de30882a90bc..05972b3275c4b0266b436963ba3a82f8cdaf30ce 100644
 --- a/src/module_wrap.h
 +++ b/src/module_wrap.h
-@@ -30,7 +30,14 @@ enum HostDefinedOptions : int {
+@@ -31,7 +31,14 @@ enum HostDefinedOptions : int {
    kLength = 9,
  };
  
