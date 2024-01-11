@@ -30,13 +30,6 @@ void InitializeFeatureList() {
       cmd_line->GetSwitchValueASCII(::switches::kEnableFeatures);
   auto disable_features =
       cmd_line->GetSwitchValueASCII(::switches::kDisableFeatures);
-  // Disable creation of spare renderer process with site-per-process mode,
-  // it interferes with our process preference tracking for non sandboxed mode.
-  // Can be reenabled when our site instance policy is aligned with chromium
-  // when node integration is enabled.
-  disable_features +=
-      std::string(",") + features::kSpareRendererForSitePerProcess.name;
-
   // TODO(codebytere): Remove WebSQL support per crbug.com/695592.
   enable_features += std::string(",") + blink::features::kWebSQLAccess.name;
 
