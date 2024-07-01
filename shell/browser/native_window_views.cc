@@ -26,6 +26,7 @@
 #include "base/strings/utf_string_conversions.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/desktop_media_id.h"
+#include "content/public/common/color_parser.h"
 #include "shell/browser/api/electron_api_web_contents.h"
 #include "shell/browser/ui/inspectable_web_contents.h"
 #include "shell/browser/ui/inspectable_web_contents_view.h"
@@ -39,6 +40,7 @@
 #include "shell/common/options_switches.h"
 #include "ui/aura/window_tree_host.h"
 #include "ui/base/hit_test.h"
+#include "ui/display/screen.h"
 #include "ui/gfx/image/image.h"
 #include "ui/gfx/native_widget_types.h"
 #include "ui/ozone/public/ozone_platform.h"
@@ -58,6 +60,7 @@
 #include "shell/browser/ui/views/client_frame_view_linux.h"
 #include "shell/browser/ui/views/frameless_view.h"
 #include "shell/browser/ui/views/native_frame_view.h"
+#include "shell/browser/ui/views/opaque_frame_view.h"
 #include "shell/common/platform_util.h"
 #include "ui/views/widget/desktop_aura/desktop_native_widget_aura.h"
 #include "ui/views/window/native_frame_view.h"
@@ -75,14 +78,13 @@
 #elif BUILDFLAG(IS_WIN)
 #include "base/win/win_util.h"
 #include "base/win/windows_version.h"
-#include "content/public/common/color_parser.h"
 #include "shell/browser/ui/views/win_frame_view.h"
 #include "shell/browser/ui/win/electron_desktop_native_widget_aura.h"
 #include "skia/ext/skia_utils_win.h"
 #include "ui/base/win/shell.h"
-#include "ui/display/screen.h"
 #include "ui/display/win/screen_win.h"
 #include "ui/gfx/color_utils.h"
+#include "ui/gfx/win/hwnd_util.h"
 #include "ui/gfx/win/msg_util.h"
 #endif
 
@@ -184,6 +186,7 @@ class NativeWindowClientView : public views::ClientView {
   NativeWindowClientView(const NativeWindowClientView&) = delete;
   NativeWindowClientView& operator=(const NativeWindowClientView&) = delete;
 
+  // views::ClientView
   views::CloseRequestResult OnWindowCloseRequested() override {
     window_->NotifyWindowCloseButtonClicked();
     return views::CloseRequestResult::kCannotClose;
@@ -218,6 +221,7 @@ NativeWindowViews::NativeWindowViews(const gin_helper::Dictionary& options,
 
   overlay_button_color_ = color_utils::GetSysSkColor(COLOR_BTNFACE);
   overlay_symbol_color_ = color_utils::GetSysSkColor(COLOR_BTNTEXT);
+#endif
 
   v8::Local<v8::Value> titlebar_overlay;
   if (options.Get(options::ktitleBarOverlay, &titlebar_overlay) &&
@@ -243,9 +247,11 @@ NativeWindowViews::NativeWindowViews(const gin_helper::Dictionary& options,
     }
   }
 
-  if (title_bar_style_ != TitleBarStyle::kNormal)
+  // |hidden| is the only non-default titleBarStyle valid on Windows and Linux.
+  if (title_bar_style_ == TitleBarStyle::kHidden)
     set_has_frame(false);
 
+#if BUILDFLAG(IS_WIN)
   // If the taskbar is re-created after we start up, we have to rebuild all of
   // our buttons.
   taskbar_created_message_ = RegisterWindowMessage(TEXT("TaskbarCreated"));
@@ -267,25 +273,25 @@ NativeWindowViews::NativeWindowViews(const gin_helper::Dictionary& options,
 
   widget()->AddObserver(this);
 
-  views::Widget::InitParams params;
-  params.ownership = views::Widget::InitParams::WIDGET_OWNS_NATIVE_WIDGET;
+  using InitParams = views::Widget::InitParams;
+  auto params = InitParams{InitParams::WIDGET_OWNS_NATIVE_WIDGET,
+                           InitParams::TYPE_WINDOW};
   params.bounds = bounds;
   params.delegate = this;
-  params.type = views::Widget::InitParams::TYPE_WINDOW;
   params.remove_standard_frame = !has_frame() || has_client_frame();
 
   // If a client frame, we need to draw our own shadows.
   if (IsTranslucent() || has_client_frame())
-    params.opacity = views::Widget::InitParams::WindowOpacity::kTranslucent;
+    params.opacity = InitParams::WindowOpacity::kTranslucent;
 
   // The given window is most likely not rectangular since it is translucent and
   // has no standard frame, don't show a shadow for it.
   if (IsTranslucent() && !has_frame())
-    params.shadow_type = views::Widget::InitParams::ShadowType::kNone;
+    params.shadow_type = InitParams::ShadowType::kNone;
 
   bool focusable;
   if (options.Get(options::kFocusable, &focusable) && !focusable)
-    params.activatable = views::Widget::InitParams::Activatable::kNo;
+    params.activatable = InitParams::Activatable::kNo;
 
 #if BUILDFLAG(IS_WIN)
   if (parent)
@@ -1069,8 +1075,23 @@ ui::ZOrderLevel NativeWindowViews::GetZOrderLevel() const {
   return widget()->GetZOrderLevel();
 }
 
+// We previous called widget()->CenterWindow() here, but in
+// Chromium CL 4916277 behavior was changed to center relative to the
+// parent window if there is one. We want to keep the old behavior
+// for now to avoid breaking API contract, but should consider the long
+// term plan for this aligning with upstream.
 void NativeWindowViews::Center() {
-  widget()->CenterWindow(GetSize());
+#if BUILDFLAG(IS_LINUX)
+  auto display =
+      display::Screen::GetScreen()->GetDisplayNearestWindow(GetNativeWindow());
+  gfx::Rect window_bounds_in_screen = display.work_area();
+  window_bounds_in_screen.ClampToCenteredSize(GetSize());
+  widget()->SetBounds(window_bounds_in_screen);
+#else
+  HWND hwnd = GetAcceleratedWidget();
+  gfx::Size size = display::win::ScreenWin::DIPToScreenSize(hwnd, GetSize());
+  gfx::CenterAndSizeWindow(nullptr, hwnd, size);
+#endif
 }
 
 void NativeWindowViews::Invalidate() {
@@ -1687,11 +1708,15 @@ NativeWindowViews::CreateNonClientFrameView(views::Widget* widget) {
   if (has_frame() && !has_client_frame()) {
     return std::make_unique<NativeFrameView>(this, widget);
   } else {
-    auto frame_view = has_frame() && has_client_frame()
-                          ? std::make_unique<ClientFrameViewLinux>()
-                          : std::make_unique<FramelessView>();
-    frame_view->Init(this, widget);
-    return frame_view;
+    if (has_frame() && has_client_frame()) {
+      auto frame_view = std::make_unique<ClientFrameViewLinux>();
+      frame_view->Init(this, widget);
+      return frame_view;
+    } else {
+      auto frame_view = std::make_unique<OpaqueFrameView>();
+      frame_view->Init(this, widget);
+      return frame_view;
+    }
   }
 #endif
 }
@@ -1702,7 +1727,7 @@ void NativeWindowViews::OnWidgetMove() {
 
 void NativeWindowViews::HandleKeyboardEvent(
     content::WebContents*,
-    const content::NativeWebKeyboardEvent& event) {
+    const input::NativeWebKeyboardEvent& event) {
   if (widget_destroyed_)
     return;
 

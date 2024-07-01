@@ -16,8 +16,8 @@
 namespace electron::api {
 
 class BrowserWindow : public BaseWindow,
-                      public content::WebContentsObserver,
-                      public ExtendedWebContentsObserver {
+                      private content::WebContentsObserver,
+                      private ExtendedWebContentsObserver {
  public:
   static gin_helper::WrappableBase* New(gin_helper::ErrorThrower thrower,
                                         gin::Arguments* args);
@@ -73,10 +73,6 @@ class BrowserWindow : public BaseWindow,
   void BlurWebView();
   bool IsWebViewFocused();
   v8::Local<v8::Value> GetWebContents(v8::Isolate* isolate);
-#if BUILDFLAG(IS_WIN)
-  void SetTitleBarOverlay(const gin_helper::Dictionary& options,
-                          gin_helper::Arguments* args);
-#endif
 
  private:
   // Helpers.

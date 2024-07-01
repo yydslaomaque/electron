@@ -20,7 +20,7 @@ namespace electron {
 class SerialChooserController;
 
 class ElectronSerialDelegate : public content::SerialDelegate,
-                               public SerialChooserContext::PortObserver {
+                               private SerialChooserContext::PortObserver {
  public:
   ElectronSerialDelegate();
   ~ElectronSerialDelegate() override;
@@ -29,6 +29,7 @@ class ElectronSerialDelegate : public content::SerialDelegate,
   ElectronSerialDelegate(const ElectronSerialDelegate&) = delete;
   ElectronSerialDelegate& operator=(const ElectronSerialDelegate&) = delete;
 
+  // content::SerialDelegate:
   std::unique_ptr<content::SerialChooser> RunChooser(
       content::RenderFrameHost* frame,
       std::vector<blink::mojom::SerialPortFilterPtr> filters,

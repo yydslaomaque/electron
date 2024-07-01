@@ -29,8 +29,8 @@
 namespace electron {
 
 class ClientFrameViewLinux : public FramelessView,
-                             public ui::NativeThemeObserver,
-                             public ui::WindowButtonOrderObserver {
+                             private ui::NativeThemeObserver,
+                             private ui::WindowButtonOrderObserver {
   METADATA_HEADER(ClientFrameViewLinux, FramelessView)
 
  public:
@@ -44,6 +44,7 @@ class ClientFrameViewLinux : public FramelessView,
   gfx::Insets GetInputInsets() const;
   gfx::Rect GetWindowContentBounds() const;
   SkRRect GetRoundedWindowContentBounds() const;
+  int GetTranslucentTopAreaHeight() const;
   // Returns which edges of the frame are tiled.
   const ui::WindowTiledEdges& tiled_edges() const { return tiled_edges_; }
   void set_tiled_edges(ui::WindowTiledEdges tiled_edges) {
@@ -70,7 +71,8 @@ class ClientFrameViewLinux : public FramelessView,
   void SizeConstraintsChanged() override;
 
   // Overridden from View:
-  gfx::Size CalculatePreferredSize() const override;
+  gfx::Size CalculatePreferredSize(
+      const views::SizeBounds& available_size) const override;
   gfx::Size GetMinimumSize() const override;
   gfx::Size GetMaximumSize() const override;
   void Layout(PassKey) override;

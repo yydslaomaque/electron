@@ -43,7 +43,11 @@ const getHeaders = (filePath: string, fileName: string) => {
   };
 };
 
-const targetRepo = releaseVersion.indexOf('nightly') > 0 ? 'nightlies' : 'electron';
+function getRepo () {
+  return releaseVersion.indexOf('nightly') > 0 ? 'nightlies' : 'electron';
+}
+
+const targetRepo = getRepo();
 const uploadUrl = `https://uploads.github.com/repos/electron/${targetRepo}/releases/${releaseId}/assets{?name,label}`;
 let retry = 0;
 

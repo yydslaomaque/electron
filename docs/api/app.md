@@ -1265,7 +1265,7 @@ Returns `Object`:
 
 * `openAtLogin` boolean - `true` if the app is set to open at login.
 * `openAsHidden` boolean _macOS_ _Deprecated_ - `true` if the app is set to open as hidden at login. This does not work on macOS 13 and up.
-* `wasOpenedAtLogin` boolean _macOS_ _Deprecated_ - `true` if the app was opened at login automatically. This setting is not available on [MAS builds][mas-builds] or on macOS 13 and up.
+* `wasOpenedAtLogin` boolean _macOS_ - `true` if the app was opened at login automatically.
 * `wasOpenedAsHidden` boolean _macOS_ _Deprecated_ - `true` if the app was opened as a hidden login item. This indicates that the app should not open any windows at startup. This setting is not available on [MAS builds][mas-builds] or on macOS 13 and up.
 * `restoreState` boolean _macOS_ _Deprecated_ - `true` if the app was opened as a login item that should restore the state from the previous session. This indicates that the app should restore the windows that were open the last time the app was closed. This setting is not available on [MAS builds][mas-builds] or on macOS 13 and up.
 * `status` string _macOS_ - can be one of `not-registered`, `enabled`, `requires-approval`, or `not-found`.
@@ -1282,8 +1282,7 @@ Returns `Object`:
 * `settings` Object
   * `openAtLogin` boolean (optional) - `true` to open the app at login, `false` to remove
     the app as a login item. Defaults to `false`.
-  * `openAsHidden` boolean (optional) _macOS_ _Deprecated_ - `true` to open the app as hidden. Defaults to `false`. The user can edit this setting from the System Preferences so `app.getLoginItemSettings().wasOpenedAsHidden` should be checked when the app is opened to know the current value. This setting is not available on [MAS build
-s][mas-builds] or on macOS 13 and up.
+  * `openAsHidden` boolean (optional) _macOS_ _Deprecated_ - `true` to open the app as hidden. Defaults to `false`. The user can edit this setting from the System Preferences so `app.getLoginItemSettings().wasOpenedAsHidden` should be checked when the app is opened to know the current value. This setting is not available on [MAS builds][mas-builds] or on macOS 13 and up.
   * `type` string (optional) _macOS_ - The type of service to add as a login item. Defaults to `mainAppService`. Only available on macOS 13 and up.
     * `mainAppService` - The primary application.
     * `agentService` - The property list name for a launch agent. The property list name must correspond to a property list in the app’s `Contents/Library/LaunchAgents` directory.

@@ -61,9 +61,9 @@ typedef base::RepeatingCallback<void(const gfx::Rect&)> OnPopupPaintCallback;
 
 class OffScreenRenderWidgetHostView
     : public content::RenderWidgetHostViewBase,
-      public content::RenderFrameMetadataProvider::Observer,
+      private content::RenderFrameMetadataProvider::Observer,
       public ui::CompositorDelegate,
-      public OffscreenViewProxyObserver {
+      private OffscreenViewProxyObserver {
  public:
   OffScreenRenderWidgetHostView(bool transparent,
                                 bool painting,
@@ -121,7 +121,6 @@ class OffScreenRenderWidgetHostView
 #endif  // BUILDFLAG(IS_MAC)
 
   // content::RenderWidgetHostViewBase:
-
   void UpdateFrameSinkIdRegistration() override;
   void InvalidateLocalSurfaceIdAndAllocationGroup() override;
   void ResetFallbackToFirstNavigationSurface() override;
@@ -174,7 +173,7 @@ class OffScreenRenderWidgetHostView
 
   bool TransformPointToCoordSpaceForView(
       const gfx::PointF& point,
-      RenderWidgetHostViewBase* target_view,
+      RenderWidgetHostViewInput* target_view,
       gfx::PointF* transformed_point) override;
 
   // RenderFrameMetadataProvider::Observer:

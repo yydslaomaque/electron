@@ -111,7 +111,7 @@ class WebContents : public ExclusiveAccessContext,
                     public gin_helper::CleanedUpAtExit,
                     public content::WebContentsObserver,
                     public content::WebContentsDelegate,
-                    public content::RenderWidgetHost::InputEventObserver,
+                    private content::RenderWidgetHost::InputEventObserver,
                     public content::JavaScriptDialogManager,
                     public InspectableWebContentsDelegate,
                     public InspectableWebContentsViewDelegate,
@@ -170,7 +170,9 @@ class WebContents : public ExclusiveAccessContext,
   void Close(std::optional<gin_helper::Dictionary> options);
   base::WeakPtr<WebContents> GetWeakPtr() { return weak_factory_.GetWeakPtr(); }
 
+  // BackgroundThrottlingSource
   bool GetBackgroundThrottling() const override;
+
   void SetBackgroundThrottling(bool allowed);
   int GetProcessID() const;
   base::ProcessId GetOSProcessID() const;
@@ -345,6 +347,7 @@ class WebContents : public ExclusiveAccessContext,
                                           const base::FilePath& file_path);
   v8::Local<v8::Promise> GetProcessMemoryInfo(v8::Isolate* isolate);
 
+  // content::WebContentsDelegate:
   bool HandleContextMenu(content::RenderFrameHost& render_frame_host,
                          const content::ContextMenuParams& params) override;
 
@@ -568,15 +571,13 @@ class WebContents : public ExclusiveAccessContext,
   void CloseContents(content::WebContents* source) override;
   void ActivateContents(content::WebContents* contents) override;
   void UpdateTargetURL(content::WebContents* source, const GURL& url) override;
-  bool HandleKeyboardEvent(
-      content::WebContents* source,
-      const content::NativeWebKeyboardEvent& event) override;
-  bool PlatformHandleKeyboardEvent(
-      content::WebContents* source,
-      const content::NativeWebKeyboardEvent& event);
+  bool HandleKeyboardEvent(content::WebContents* source,
+                           const input::NativeWebKeyboardEvent& event) override;
+  bool PlatformHandleKeyboardEvent(content::WebContents* source,
+                                   const input::NativeWebKeyboardEvent& event);
   content::KeyboardEventProcessingResult PreHandleKeyboardEvent(
       content::WebContents* source,
-      const content::NativeWebKeyboardEvent& event) override;
+      const input::NativeWebKeyboardEvent& event) override;
   void ContentsZoomChange(bool zoom_in) override;
   void EnterFullscreenModeForTab(
       content::RenderFrameHost* requesting_frame,
@@ -718,12 +719,9 @@ class WebContents : public ExclusiveAccessContext,
                        ExclusiveAccessBubbleType bubble_type,
                        const int64_t display_id) override;
   void ExitFullscreen() override;
-  void UpdateExclusiveAccessExitBubbleContent(
-      const GURL& url,
-      ExclusiveAccessBubbleType bubble_type,
-      ExclusiveAccessBubbleHideCallback bubble_first_hide_callback,
-      bool notify_download,
-      bool force_update) override;
+  void UpdateExclusiveAccessBubble(
+      const ExclusiveAccessBubbleParams& params,
+      ExclusiveAccessBubbleHideCallback bubble_first_hide_callback) override;
   void OnExclusiveAccessUserInput() override;
   content::WebContents* GetActiveWebContents() override;
   bool CanUserExitFullscreen() const override;
@@ -741,7 +739,8 @@ class WebContents : public ExclusiveAccessContext,
   // InspectableWebContentsDelegate:
   void DevToolsSaveToFile(const std::string& url,
                           const std::string& content,
-                          bool save_as) override;
+                          bool save_as,
+                          bool is_base64) override;
   void DevToolsAppendToFile(const std::string& url,
                             const std::string& content) override;
   void DevToolsRequestFileSystems() override;

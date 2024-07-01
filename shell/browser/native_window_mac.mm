@@ -233,11 +233,11 @@ NativeWindowMac::NativeWindowMac(const gin_helper::Dictionary& options,
 
   // Create views::Widget and assign window_ with it.
   // TODO(zcbenz): Get rid of the window_ in future.
-  views::Widget::InitParams params;
-  params.ownership = views::Widget::InitParams::WIDGET_OWNS_NATIVE_WIDGET;
+  views::Widget::InitParams params(
+      views::Widget::InitParams::WIDGET_OWNS_NATIVE_WIDGET,
+      views::Widget::InitParams::TYPE_WINDOW);
   params.bounds = bounds;
   params.delegate = this;
-  params.type = views::Widget::InitParams::TYPE_WINDOW;
   params.headless_mode = true;
   params.native_widget =
       new ElectronNativeWidgetMac(this, windowType, styleMask, widget());
@@ -426,20 +426,7 @@ void NativeWindowMac::Focus(bool focus) {
     // If we're a panel window, we do not want to activate the app,
     // which enables Electron-apps to build Spotlight-like experiences.
     if (!IsPanel()) {
-      // On macOS < Sonoma, "activateIgnoringOtherApps:NO" would not
-      // activate apps if focusing a window that is inActive. That
-      // changed with macOS Sonoma, which also deprecated
-      // "activateIgnoringOtherApps".
-      //
-      // There's a slim chance we should have never called
-      // activateIgnoringOtherApps, but we tried that many years ago
-      // and saw weird focus bugs on other macOS versions. So, to make
-      // this safe, we're gating by versions.
-      if (@available(macOS 14.0, *)) {
-        [[NSApplication sharedApplication] activate];
-      } else {
-        [[NSApplication sharedApplication] activateIgnoringOtherApps:NO];
-      }
+      [[NSApplication sharedApplication] activateIgnoringOtherApps:NO];
     }
     [window_ makeKeyAndOrderFront:nil];
   } else {
@@ -470,11 +457,7 @@ void NativeWindowMac::Show() {
 
   // Panels receive key focus when shown but should not activate the app.
   if (!IsPanel()) {
-    if (@available(macOS 14.0, *)) {
-      [[NSApplication sharedApplication] activate];
-    } else {
-      [[NSApplication sharedApplication] activateIgnoringOtherApps:YES];
-    }
+    [[NSApplication sharedApplication] activateIgnoringOtherApps:YES];
   }
   [window_ makeKeyAndOrderFront:nil];
 }
@@ -486,7 +469,7 @@ void NativeWindowMac::ShowInactive() {
   if (parent())
     InternalSetParentWindow(parent(), true);
 
-  [window_ orderFrontRegardless];
+  [window_ orderFrontKeepWindowKeyState];
 }
 
 void NativeWindowMac::Hide() {

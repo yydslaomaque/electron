@@ -51,7 +51,6 @@ class BrowserProcessImpl : public BrowserProcess {
 
   static void ApplyProxyModeFromCommandLine(ValueMapPrefStore* pref_store);
 
-  BuildState* GetBuildState() override;
   void PostEarlyInitialization();
   void PreCreateThreads();
   void PreMainMessageLoopRun();
@@ -68,6 +67,8 @@ class BrowserProcessImpl : public BrowserProcess {
   }
 #endif
 
+  // BrowserProcess
+  BuildState* GetBuildState() override;
   void EndSession() override {}
   void FlushLocalStateAndReply(base::OnceClosure reply) override {}
   bool IsShuttingDown() override;
@@ -115,6 +116,9 @@ class BrowserProcessImpl : public BrowserProcess {
   HidSystemTrayIcon* hid_system_tray_icon() override;
   UsbSystemTrayIcon* usb_system_tray_icon() override;
   os_crypt_async::OSCryptAsync* os_crypt_async() override;
+  void set_additional_os_crypt_async_provider_for_test(
+      size_t precedence,
+      std::unique_ptr<os_crypt_async::KeyProvider> provider) override;
   void CreateDevToolsProtocolHandler() override {}
   void CreateDevToolsAutoOpener() override {}
   void set_background_mode_manager_for_test(

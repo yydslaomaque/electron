@@ -695,7 +695,7 @@ Returns `Promise<void>` - Resolves when all connections are closed.
 #### `ses.fetch(input[, init])`
 
 * `input` string | [GlobalRequest](https://nodejs.org/api/globals.html#request)
-* `init` [RequestInit](https://developer.mozilla.org/en-US/docs/Web/API/fetch#options) & { bypassCustomProtocolHandlers?: boolean } (optional)
+* `init` [RequestInit](https://developer.mozilla.org/en-US/docs/Web/API/fetch#options) & \{ bypassCustomProtocolHandlers?: boolean \} (optional)
 
 Returns `Promise<GlobalResponse>` - see [Response](https://developer.mozilla.org/en-US/docs/Web/API/Response).
 
@@ -729,11 +729,10 @@ Limitations:
 * The `.type` and `.url` values of the returned `Response` object are
   incorrect.
 
-By default, requests made with `net.fetch` can be made to [custom
-protocols](protocol.md) as well as `file:`, and will trigger
-[webRequest](web-request.md) handlers if present. When the non-standard
-`bypassCustomProtocolHandlers` option is set in RequestInit, custom protocol
-handlers will not be called for this request. This allows forwarding an
+By default, requests made with `net.fetch` can be made to [custom protocols](protocol.md)
+as well as `file:`, and will trigger [webRequest](web-request.md) handlers if present.
+When the non-standard `bypassCustomProtocolHandlers` option is set in RequestInit,
+custom protocol handlers will not be called for this request. This allows forwarding an
 intercepted request to the built-in handler. [webRequest](web-request.md)
 handlers will still be triggered when bypassing custom protocols.
 

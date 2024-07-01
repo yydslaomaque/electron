@@ -8,7 +8,7 @@ it in Electron and prevent drift from Chrome's blocklist. We should look for a w
 to upstream this change to Chrome.
 
 diff --git a/chrome/browser/file_system_access/chrome_file_system_access_permission_context.cc b/chrome/browser/file_system_access/chrome_file_system_access_permission_context.cc
-index b16bbacbe09e8c458f1a3058652854a6869729fd..1215b3270b257f4ffd1e8b69fe80345239ec29fc 100644
+index 0103c97b187815fe63be677a7dcc5db7f4b85199..6c5d0b0a8713411e3bccdc16afa1a829ad7d63b2 100644
 --- a/chrome/browser/file_system_access/chrome_file_system_access_permission_context.cc
 +++ b/chrome/browser/file_system_access/chrome_file_system_access_permission_context.cc
 @@ -38,7 +38,6 @@
@@ -19,7 +19,7 @@ index b16bbacbe09e8c458f1a3058652854a6869729fd..1215b3270b257f4ffd1e8b69fe803452
  #include "chrome/grit/generated_resources.h"
  #include "components/content_settings/core/browser/host_content_settings_map.h"
  #include "components/content_settings/core/common/content_settings.h"
-@@ -222,121 +221,6 @@ bool MaybeIsLocalUNCPath(const base::FilePath& path) {
+@@ -222,118 +221,10 @@ bool MaybeIsLocalUNCPath(const base::FilePath& path) {
  }
  #endif
  
@@ -68,9 +68,7 @@ index b16bbacbe09e8c458f1a3058652854a6869729fd..1215b3270b257f4ffd1e8b69fe803452
 -    {chrome::DIR_DEFAULT_DOWNLOADS_SAFE, nullptr, kDontBlockChildren},
 -    // The Chrome installation itself should not be modified by the web.
 -    {base::DIR_EXE, nullptr, kBlockAllChildren},
--#if !BUILDFLAG(IS_FUCHSIA)
 -    {base::DIR_MODULE, nullptr, kBlockAllChildren},
--#endif
 -    {base::DIR_ASSETS, nullptr, kBlockAllChildren},
 -    // And neither should the configuration of at least the currently running
 -    // Chrome instance (note that this does not take --user-data-dir command
@@ -134,15 +132,18 @@ index b16bbacbe09e8c458f1a3058652854a6869729fd..1215b3270b257f4ffd1e8b69fe803452
 -    // website can do with access to that directory and its contents.
 -    {base::DIR_HOME, FILE_PATH_LITERAL(".dbus"), kBlockAllChildren},
 -#endif
--    // TODO(https://crbug.com/984641): Refine this list, for example add
+-    // TODO(crbug.com/40095723): Refine this list, for example add
 -    // XDG_CONFIG_HOME when it is not set ~/.config?
 -};
--
++// This patch moves the deleted content from this file over to
++// chrome/browser/file_system_access/chrome_file_system_access_permission_context.h.
++// NOTE IF THERE IS A CONFLICT ABOVE, you will need to copy the changes in the
++// removed block over to chrome_file_system_access_permission_context.h.
+ 
  // Describes a rule for blocking a directory, which can be constructed
  // dynamically (based on state) or statically (from kBlockedPaths).
- struct BlockPathRule {
 diff --git a/chrome/browser/file_system_access/chrome_file_system_access_permission_context.h b/chrome/browser/file_system_access/chrome_file_system_access_permission_context.h
-index 51a782cfb48096f1bfc70a69b793652b96252a3c..9010a41d2fe18e2e97ef4e9aa342dd45c551da8d 100644
+index 62cbdc561d99e87feecc6f204ece7d1b8fcdee59..98d1ce1d2f4c2443cde417911249f10027f6eb0e 100644
 --- a/chrome/browser/file_system_access/chrome_file_system_access_permission_context.h
 +++ b/chrome/browser/file_system_access/chrome_file_system_access_permission_context.h
 @@ -17,12 +17,13 @@
@@ -170,7 +171,7 @@ index 51a782cfb48096f1bfc70a69b793652b96252a3c..9010a41d2fe18e2e97ef4e9aa342dd45
  #include "chrome/browser/enterprise/connectors/analysis/content_analysis_delegate.h"
  #include "components/enterprise/common/files_scan_data.h"
  #endif
-@@ -331,6 +333,121 @@ class ChromeFileSystemAccessPermissionContext
+@@ -334,6 +336,119 @@ class ChromeFileSystemAccessPermissionContext
    // chrome://settings/content/filesystem UI.
    static constexpr char kPermissionPathKey[] = "path";
  
@@ -219,9 +220,7 @@ index 51a782cfb48096f1bfc70a69b793652b96252a3c..9010a41d2fe18e2e97ef4e9aa342dd45
 +      {chrome::DIR_DEFAULT_DOWNLOADS_SAFE, nullptr, kDontBlockChildren},
 +      // The Chrome installation itself should not be modified by the web.
 +      {base::DIR_EXE, nullptr, kBlockAllChildren},
-+  #if !BUILDFLAG(IS_FUCHSIA)
 +      {base::DIR_MODULE, nullptr, kBlockAllChildren},
-+  #endif
 +      {base::DIR_ASSETS, nullptr, kBlockAllChildren},
 +      // And neither should the configuration of at least the currently running
 +      // Chrome instance (note that this does not take --user-data-dir command
@@ -285,14 +284,14 @@ index 51a782cfb48096f1bfc70a69b793652b96252a3c..9010a41d2fe18e2e97ef4e9aa342dd45
 +      // website can do with access to that directory and its contents.
 +      {base::DIR_HOME, FILE_PATH_LITERAL(".dbus"), kBlockAllChildren},
 +  #endif
-+      // TODO(https://crbug.com/984641): Refine this list, for example add
++      // TODO(crbug.com/40095723): Refine this list, for example add
 +      // XDG_CONFIG_HOME when it is not set ~/.config?
 +  };
 +
   protected:
    SEQUENCE_CHECKER(sequence_checker_);
  
-@@ -350,7 +467,7 @@ class ChromeFileSystemAccessPermissionContext
+@@ -353,7 +468,7 @@ class ChromeFileSystemAccessPermissionContext
  
    void PermissionGrantDestroyed(PermissionGrantImpl* grant);
  

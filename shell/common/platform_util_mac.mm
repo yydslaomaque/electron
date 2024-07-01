@@ -111,7 +111,7 @@ std::string GetLaunchStringForError(NSError* error) {
         return "The specified path doesn't exist or the helper tool at the "
                "specified path isn't valid";
       default:
-        return "Failed to register the login item";
+        return base::SysNSStringToUTF8([error localizedDescription]);
     }
   }
 
@@ -128,7 +128,7 @@ SMAppService* GetServiceForType(const std::string& type,
     return [SMAppService agentServiceWithPlistName:service_name];
   } else if (type == "daemonService") {
     return [SMAppService daemonServiceWithPlistName:service_name];
-  } else if (type == "loginService") {
+  } else if (type == "loginItemService") {
     return [SMAppService loginItemServiceWithIdentifier:service_name];
   } else {
     LOG(ERROR) << "Unrecognized login item type";

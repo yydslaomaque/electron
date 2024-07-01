@@ -21,9 +21,9 @@
 #include "components/viz/common/frame_sinks/copy_output_request.h"
 #include "components/viz/common/frame_sinks/delay_based_time_source.h"
 #include "components/viz/common/quads/compositor_render_pass.h"
-#include "content/browser/renderer_host/cursor_manager.h"  // nogncheck
 #include "content/browser/renderer_host/render_widget_host_delegate.h"  // nogncheck
 #include "content/browser/renderer_host/render_widget_host_owner_delegate.h"  // nogncheck
+#include "content/common/input/cursor_manager.h"
 #include "content/common/input/synthetic_gesture.h"  // nogncheck
 #include "content/common/input/synthetic_gesture_target.h"
 #include "content/public/browser/browser_task_traits.h"
@@ -135,6 +135,7 @@ class ElectronDelegatedFrameHostClient
   ElectronDelegatedFrameHostClient& operator=(
       const ElectronDelegatedFrameHostClient&) = delete;
 
+  // content::DelegatedFrameHostClient
   ui::Layer* DelegatedFrameHostGetLayer() const override {
     return view_->root_layer();
   }
@@ -160,8 +161,11 @@ class ElectronDelegatedFrameHostClient
     return view_->GetDeviceScaleFactor();
   }
 
-  std::vector<viz::SurfaceId> CollectSurfaceIdsForEviction() override {
-    return view_->render_widget_host()->CollectSurfaceIdsForEviction();
+  viz::FrameEvictorClient::EvictIds CollectSurfaceIdsForEviction() override {
+    viz::FrameEvictorClient::EvictIds ids;
+    ids.embedded_ids =
+        view_->render_widget_host()->CollectSurfaceIdsForEviction();
+    return ids;
   }
 
   bool ShouldShowStaleContentOnEviction() override { return false; }
@@ -590,7 +594,7 @@ void OffScreenRenderWidgetHostView::DidNavigate() {
 
 bool OffScreenRenderWidgetHostView::TransformPointToCoordSpaceForView(
     const gfx::PointF& point,
-    RenderWidgetHostViewBase* target_view,
+    RenderWidgetHostViewInput* target_view,
     gfx::PointF* transformed_point) {
   if (target_view == this) {
     *transformed_point = point;

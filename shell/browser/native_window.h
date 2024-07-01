@@ -27,7 +27,7 @@
 
 class SkRegion;
 
-namespace content {
+namespace input {
 struct NativeWebKeyboardEvent;
 }
 
@@ -290,9 +290,9 @@ class NativeWindow : public base::SupportsUserData,
   virtual void SetWindowControlsOverlayRect(const gfx::Rect& overlay_rect);
 
   // Methods called by the WebContents.
-  virtual void HandleKeyboardEvent(
-      content::WebContents*,
-      const content::NativeWebKeyboardEvent& event) {}
+  virtual void HandleKeyboardEvent(content::WebContents*,
+                                   const input::NativeWebKeyboardEvent& event) {
+  }
 
   // Public API used by platform-dependent delegates and observers to send UI
   // related notifications.
@@ -372,12 +372,23 @@ class NativeWindow : public base::SupportsUserData,
     kHiddenInset,
     kCustomButtonsOnHover,
   };
+
   TitleBarStyle title_bar_style() const { return title_bar_style_; }
+
+  bool IsWindowControlsOverlayEnabled() const {
+    bool valid_titlebar_style = title_bar_style() == TitleBarStyle::kHidden
+#if BUILDFLAG(IS_MAC)
+                                ||
+                                title_bar_style() == TitleBarStyle::kHiddenInset
+#endif
+        ;
+    return valid_titlebar_style && titlebar_overlay_;
+  }
+
   int titlebar_overlay_height() const { return titlebar_overlay_height_; }
   void set_titlebar_overlay_height(int height) {
     titlebar_overlay_height_ = height;
   }
-  bool titlebar_overlay_enabled() const { return titlebar_overlay_; }
 
   bool has_frame() const { return has_frame_; }
   void set_has_frame(bool has_frame) { has_frame_ = has_frame; }
